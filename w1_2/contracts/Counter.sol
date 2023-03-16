@@ -7,10 +7,12 @@ contract Counter{
     constructor(){
         counter=0;
         owner=msg.sender;
+
     }
 
     function count() public {
         counter = counter + 1;
+
     }
 
     function add(uint x) external onlyOwner {
