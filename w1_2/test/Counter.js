@@ -15,7 +15,7 @@ describe("Counter", function (){
     })
 
     it("self call", async function (){
-        let tx= await counter.add(1);
+        let tx= await counter.count();
         tx.wait();
         expect(await counter.counter()).to.equal(1);
     })
@@ -23,7 +23,7 @@ describe("Counter", function (){
     it("other call",async function (){
         const [owner,otherAccount] = await ethers.getSigners();
         
-        let add= counter.connect(otherAccount).add(1);
+        let add= counter.connect(otherAccount).count();
 
        await expect(add).eventually.to.rejectedWith(Error,"this function is restricted to the owner")
     })

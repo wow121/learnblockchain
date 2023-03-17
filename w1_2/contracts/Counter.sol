@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
-contract Counter{
+
+contract Counter {
     uint public counter;
     address public owner;
     constructor(){
-        counter=0;
-        owner=msg.sender;
+        counter = 0;
+        owner = msg.sender;
 
     }
 
-    function count() public {
+    function count() external onlyOwner {
         counter = counter + 1;
 
     }
@@ -20,7 +21,8 @@ contract Counter{
     }
 
     modifier onlyOwner(){
-        require(msg.sender == owner,"this function is restricted to the owner");
-        _; // will be replaced by the code of the function
+        require(msg.sender == owner, "this function is restricted to the owner");
+        _;
+        // will be replaced by the code of the function
     }
 }
