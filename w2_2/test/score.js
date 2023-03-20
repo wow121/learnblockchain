@@ -25,7 +25,7 @@ describe("MainTest", function () {
         let tx = await contract.createScore();
         await tx.wait()
 
-        scoreContract = await contract.scoreArray(0)
+        scoreContract = await contract.scoreAddr();
         await expect(scoreContract.length).to.be.equal(42);
     })
 

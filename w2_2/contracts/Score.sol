@@ -30,7 +30,7 @@ interface IScore {
 
 contract Teacher {
     address public owner;
-    address[] public scoreArray;
+    address public scoreAddr;
 
     constructor(){
         owner = msg.sender;
@@ -38,11 +38,11 @@ contract Teacher {
 
     function createScore() public onlyOwner {
         Score score = new Score();
-        scoreArray.push(address(score));
+        scoreAddr = address(score);
     }
 
     function setScore(address addr, uint score) public {
-        IScore(address(scoreArray[scoreArray.length - 1])).setScore(addr, score);
+        IScore(address(scoreAddr)).setScore(addr, score);
     }
 
     modifier onlyOwner(){
