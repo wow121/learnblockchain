@@ -1,0 +1,15 @@
+{
+  "name": "AVSNTF",
+  "description": "AVS NTF",
+  "image": "ipfs://QmdukteDboNhYP4XpdD8wthhr5Bh9RffTdiw4KzXDfuSYm",
+  "attributes": [
+    {
+      "trait_type": "Serial Number",
+      "value": "SDAB-245"
+    },
+    {
+      "trait_type": "Actress",
+      "value": "小島みこ"
+    }
+  ]
+}
