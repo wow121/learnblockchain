@@ -35,7 +35,7 @@ describe("MainTest", function () {
 
 
         const OptionsToken = await ethers.getContractFactory("OptionsToken");
-        optionsTokenContracts = await OptionsToken.deploy(1000, Math.floor(new Date().getTime() / 1000) + 1000);
+        optionsTokenContracts = await OptionsToken.deploy(1000, Math.floor(new Date().getTime() / 1000) + 1000, "0xdac17f958d2ee523a2206206994597c13d831ec7");
         await optionsTokenContracts.deployed();
         console.log("optionsToken:" + optionsTokenContracts.address);
 
@@ -78,7 +78,7 @@ describe("MainTest", function () {
         })).to.changeEtherBalances([account.address, optionsTokenContracts.address], [ethers.utils.parseEther("-1"), ethers.utils.parseEther("1")])
 
         //期望获得1000个期权token
-        await expect(await optionsTokenContracts.connect(account).balanceOf(account.address)).to.be.equal(ethers.utils.parseEther("1000"));
+        await expect(await optionsTokenContracts.connect(account).balanceOf(account.address)).to.be.equal(ethers.utils.parseEther("1"));
 
 
     })
@@ -96,50 +96,53 @@ describe("MainTest", function () {
         await expect(await usdtContracts.connect(account).balanceOf(account.address)).to.be.equal(1000 * 10 ** 6);
 
         //授权markek合约可操作期货Token
-        tx = await optionsTokenContracts.connect(account).approve(myTokenMarketContracts.address, ethers.utils.parseEther("1000"));
+        tx = await optionsTokenContracts.connect(account).approve(myTokenMarketContracts.address, ethers.utils.parseEther("1"));
         tx.wait();
 
         //授权markek合约可操作USDT
         tx = await usdtContracts.connect(account).approve(myTokenMarketContracts.address, 1000 * 10 ** 6);
         tx.wait();
         //添加流动性
-        tx = await myTokenMarketContracts.connect(account).addLiquidity(ethers.utils.parseEther("1000"), 1000 * 10 ** 6);
+        tx = await myTokenMarketContracts.connect(account).addLiquidity(ethers.utils.parseEther("1"), 100 * 10 ** 6);
         tx.wait();
         //检查流动性凭证
-        await expect(await uniswapV2PairContracts.connect(account).balanceOf(account.address)).to.be.equal(ethers.BigNumber.from("999999999999000"));
+        await expect(await uniswapV2PairContracts.connect(account).balanceOf(account.address)).to.be.equal(ethers.BigNumber.from("9999999999000"));
 
     })
 
     it("testBuyToken", async function () {
         let tx;
 
-        //给另一个账号转500USDT
-        tx = await usdtContracts.connect(mockAccount).transfer(account1.address, 500 * 10 ** 6);
+        //给另一个账号转5000USDT
+        tx = await usdtContracts.connect(mockAccount).transfer(account1.address, 5000 * 10 ** 6);
         tx.wait();
 
         //检查余额
-        await expect(await usdtContracts.connect(account1).balanceOf(account1.address)).to.be.equal(500 * 10 ** 6);
+        await expect(await usdtContracts.connect(account1).balanceOf(account1.address)).to.be.equal(5000 * 10 ** 6);
 
         //授权markek合约可操作USDT
         tx = await usdtContracts.connect(account1).approve(myTokenMarketContracts.address, 500 * 10 ** 6);
         tx.wait();
 
         //购买期权Token
-        await expect(myTokenMarketContracts.connect(account1).buyToken(500 * 10 ** 6)).to.changeTokenBalance(optionsTokenContracts, account1, ethers.BigNumber.from("332665999332665999332"));
+        await expect(myTokenMarketContracts.connect(account1).buyToken(50 * 10 ** 6)).to.changeTokenBalance(optionsTokenContracts, account1, ethers.BigNumber.from("332665999332665999"));
     })
 
     it("testExerciseToken", async function () {
         let tx;
 
+        tx = await usdtContracts.connect(account1).approve(optionsTokenContracts.address, 1000 * 10 ** 6);
+        tx.wait();
+
         //尝试提前行权,返回失败
-        let exercise = optionsTokenContracts.connect(account1).exercise(ethers.utils.parseEther("100"))
+        let exercise = optionsTokenContracts.connect(account1).exercise(ethers.utils.parseEther("0.1"))
         await expect(exercise).eventually.to.rejectedWith(Error);
 
         //快进时间到期权行权时间
         await time.increaseTo(Math.floor(new Date().getTime() / 1000) + 1000);
 
         //行权
-        await expect(await optionsTokenContracts.connect(account1).exercise(ethers.utils.parseEther("100"))).to.changeEtherBalances([account1, optionsTokenContracts], [ethers.utils.parseEther("0.1"), ethers.utils.parseEther("-0.1")])
+        await expect(await optionsTokenContracts.connect(account1).exercise(ethers.utils.parseEther("0.1"))).to.changeEtherBalances([account1, optionsTokenContracts], [ethers.utils.parseEther("0.1"), ethers.utils.parseEther("-0.1")])
     })
 
     it("testBurnAll", async function () {
